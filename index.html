@@ -9,45 +9,14 @@
     <meta name="title" content="GeoSearch | 3D Mystery Country Guessing Game">
     <meta name="description" content="Play GeoSearch, a free daily 3D geography game. Guess the mystery country using an interactive 3D globe. Like Wordle, but for world geography!">
     <meta name="keywords" content="geography game, mystery country game, worldle alternative, globle alternative, 3d globe game, educational geography, guess the country">
-    <meta name="author" content="Your Name/Brand Here">
     <meta name="robots" content="index, follow">
 
-    <!-- Open Graph / Facebook (For link sharing previews) -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://your-domain-here.com/">
-    <meta property="og:title" content="GeoSearch | 3D Mystery Country Guessing Game">
-    <meta property="og:description" content="Test your geography skills! Guess the mystery country using an interactive 3D globe. Red means hotter, Green means cooler. Can you find it?">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?q=80&w=1200&auto=format&fit=crop"> <!-- Recommended: Replace with an actual screenshot of your game -->
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://your-domain-here.com/">
-    <meta property="twitter:title" content="GeoSearch | 3D Mystery Country Guessing Game">
-    <meta property="twitter:description" content="Test your geography skills! Guess the mystery country using an interactive 3D globe.">
-    <meta property="twitter:image" content="https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?q=80&w=1200&auto=format&fit=crop">
-
-    <!-- JSON-LD Schema for Google Rich Results -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "VideoGame",
-      "name": "GeoSearch",
-      "description": "A 3D educational geography guessing game where players find a hidden mystery country on an interactive globe based on distance clues.",
-      "genre": ["Educational", "Puzzle", "Geography"],
-      "playMode": "SinglePlayer",
-      "applicationCategory": "Game",
-      "operatingSystem": "Web Browser",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
-    }
-    </script>
-
-    <!-- External Libraries for 3D Globe -->
-    <script src="https://unpkg.com/three"></script>
-    <script src="https://unpkg.com/globe.gl"></script>
+    <!-- External Libraries (Pinned to stable versions) -->
+    <script src="https://unpkg.com/three@0.153.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/globe.gl@2.32.0/dist/globe.gl.min.js"></script>
+    
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
@@ -74,20 +43,33 @@
         /* Loading Screen */
         #loading-overlay {
             position: absolute;
-            top: 0; left: 0; width: 100vw; height: 100vh;
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh;
             background: #020205;
             z-index: 99;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            text-align: center;
+            transition: opacity 0.5s;
         }
-        .spinner { font-size: 60px; animation: spin 2s linear infinite; margin-bottom: 20px;}
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .spinner { 
+            font-size: 60px; 
+            animation: spin 2s linear infinite; 
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin { 
+            100% { transform: rotate(360deg); } 
+        }
 
         /* --- UI Elements --- */
         .glass-panel {
-            background: rgba(15, 15, 20, 0.6);
+            background: rgba(15, 15, 20, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -107,8 +89,22 @@
             flex-direction: column;
             gap: 10px;
         }
-        h1 { margin: 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;}
-        .subtitle { margin: 0; font-size: 13px; color: #b0b0b5; }
+        
+        h1 { 
+            margin: 0; 
+            font-size: 22px; 
+            font-weight: 800; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            letter-spacing: 0.5px;
+        }
+        
+        .subtitle { 
+            margin: 0; 
+            font-size: 13px; 
+            color: #b0b0b5; 
+        }
         
         .btn-giveup {
             background-color: rgba(220, 53, 69, 0.2);
@@ -122,7 +118,11 @@
             transition: all 0.2s;
             width: fit-content;
         }
-        .btn-giveup:hover { background-color: rgba(220, 53, 69, 0.4); color: white; }
+        
+        .btn-giveup:hover { 
+            background-color: rgba(220, 53, 69, 0.4); 
+            color: white; 
+        }
 
         /* Bottom Center: Search Bar */
         #search-container {
@@ -136,6 +136,7 @@
             display: flex;
             gap: 12px;
         }
+        
         input {
             flex-grow: 1;
             padding: 16px 20px;
@@ -148,7 +149,12 @@
             font-family: 'Inter', sans-serif;
             transition: border-color 0.3s;
         }
-        input:focus { border-color: #4facfe; box-shadow: 0 0 15px rgba(79, 172, 254, 0.3); }
+        
+        input:focus { 
+            border-color: #4facfe; 
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.3); 
+        }
+        
         .btn-guess {
             padding: 0 24px;
             font-size: 16px;
@@ -160,8 +166,15 @@
             font-weight: 800;
             transition: transform 0.1s, box-shadow 0.2s;
         }
-        .btn-guess:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4); }
-        .btn-guess:active { transform: translateY(0); }
+        
+        .btn-guess:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4); 
+        }
+        
+        .btn-guess:active { 
+            transform: translateY(0); 
+        }
 
         /* Top Right: History Panel */
         #history-panel {
@@ -175,6 +188,7 @@
             flex-direction: column;
             gap: 15px;
         }
+        
         .controls {
             display: flex;
             justify-content: space-between;
@@ -183,6 +197,7 @@
             font-weight: 600;
             color: #ccc;
         }
+        
         .sort-buttons button {
             background-color: transparent;
             color: #aaa;
@@ -194,7 +209,45 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .sort-buttons button.active { background-color: #4facfe; color: #000; border-color: #4facfe; font-weight: bold; }
+        
+        .sort-buttons button.active { 
+            background-color: #4facfe; 
+            color: #000; 
+            border-color: #4facfe; 
+            font-weight: bold; 
+        }
+
+        /* Clues UI */
+        #clues-container {
+            display: none; 
+            background: rgba(255, 208, 0, 0.1); 
+            border: 1px solid rgba(255, 208, 0, 0.3);
+            padding: 12px; 
+            border-radius: 10px; 
+            font-size: 13px; 
+            color: #ddd;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown { 
+            from { opacity: 0; transform: translateY(-10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        #clues-container strong { 
+            color: #ffd000; 
+            display: block; 
+            margin-bottom: 5px; 
+        }
+        
+        #clues-list { 
+            margin: 0; 
+            padding-left: 20px; 
+        }
+        
+        #clues-list li { 
+            margin-bottom: 4px; 
+        }
 
         /* Guess List & Scrollbar */
         .guess-list {
@@ -205,8 +258,15 @@
             padding-right: 5px;
             flex-grow: 1;
         }
-        .guess-list::-webkit-scrollbar { width: 6px; }
-        .guess-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        
+        .guess-list::-webkit-scrollbar { 
+            width: 6px; 
+        }
+        
+        .guess-list::-webkit-scrollbar-thumb { 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 3px; 
+        }
 
         .guess-item {
             background-color: rgba(0, 0, 0, 0.4);
@@ -218,19 +278,26 @@
             border: 1px solid rgba(255,255,255,0.05);
             transition: transform 0.2s;
         }
-        .guess-item:hover { transform: translateX(-5px); }
+        
+        .guess-item:hover { 
+            transform: translateX(-5px); 
+        }
 
         /* Enhanced Modal Styles */
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
             background-color: rgba(0,0,0,0.85);
             backdrop-filter: blur(5px);
             justify-content: center;
             align-items: center;
             z-index: 100;
         }
+        
         .modal-content {
             background: linear-gradient(180deg, #1a1a24 0%, #0d0d14 100%);
             padding: 40px 50px;
@@ -239,14 +306,56 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
             max-width: 450px;
+            width: 90%;
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        
         @keyframes popIn {
             0% { transform: scale(0.8); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .modal-content h2 { margin-top: 0; font-size: 28px; }
-        .modal-content h1 { justify-content: center; font-size: 42px; margin: 15px 0; background: -webkit-linear-gradient(#fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
+        
+        .modal-content h2 { 
+            margin-top: 0; 
+            font-size: 28px; 
+        }
+        
+        .modal-content h1 { 
+            justify-content: center; 
+            font-size: 42px; 
+            margin: 15px 0; 
+            background: -webkit-linear-gradient(#fff, #aaa); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Stats Grid inside Modal */
+        .stats-grid {
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px; 
+            margin: 25px 0;
+            background: rgba(0,0,0,0.3); 
+            padding: 15px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stat-box { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            font-size: 12px; 
+            color: #aaa; 
+        }
+        
+        .stat-value { 
+            font-size: 24px; 
+            font-weight: 800; 
+            color: #fff; 
+            margin-bottom: 5px; 
+        }
+
         .modal-btn {
             margin-top: 25px;
             width: 100%;
@@ -260,25 +369,50 @@
             color: #000;
             transition: transform 0.2s;
         }
-        .modal-btn:hover { transform: scale(1.05); }
+        
+        .modal-btn:hover { 
+            transform: scale(1.05); 
+        }
 
         /* Responsive Layout for Mobile */
         @media (max-width: 900px) {
-            #title-container { position: relative; top: 0; left: 0; width: 100%; border-radius: 0; border-left: none; border-right: none; border-top: none; }
-            #history-panel { top: auto; bottom: 120px; left: 50%; transform: translateX(-50%); width: 90%; max-height: 35vh; right: auto;}
-            #search-container { bottom: 20px; }
-            .btn-giveup { position: absolute; right: 20px; top: 20px; }
+            #title-container { 
+                position: relative; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                border-radius: 0; 
+                border-left: none; 
+                border-right: none; 
+                border-top: none; 
+            }
+            #history-panel { 
+                top: auto; 
+                bottom: 120px; 
+                left: 50%; 
+                transform: translateX(-50%); 
+                width: 90%; 
+                max-height: 35vh; 
+                right: auto;
+            }
+            #search-container { 
+                bottom: 20px; 
+            }
+            .btn-giveup { 
+                position: absolute; 
+                right: 20px; 
+                top: 20px; 
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Semantic Tagging for Screen Readers -->
     <main>
         <div id="loading-overlay" aria-live="polite">
             <div class="spinner" aria-hidden="true">🌍</div>
             <h2 style="margin:0; font-family: 'Inter', sans-serif;">Initializing Orbit...</h2>
-            <p style="color: #888;">Fetching telemetry data</p>
+            <p id="loading-text" style="color: #888;">Fetching telemetry data</p>
         </div>
 
         <!-- The 3D Canvas -->
@@ -300,9 +434,15 @@
                     <button id="btn-distance" onclick="setSort('distance')" aria-label="Sort by distance">Distance</button>
                 </div>
             </div>
+            
+            <!-- Clues Container -->
+            <div id="clues-container">
+                <strong>💡 Intel Unlocked:</strong>
+                <ul id="clues-list"></ul>
+            </div>
+
             <div class="guess-list" id="guesses-container" aria-live="polite">
-                <!-- Guesses populate here -->
-                <div style="text-align: center; color: #666; margin-top: 20px; font-size: 14px;">Your guesses will appear here.</div>
+                <div style="text-align: center; color: #666; margin-top: 20px; font-size: 14px;">Your scans will appear here.</div>
             </div>
         </section>
 
@@ -319,7 +459,15 @@
                 <h2 id="modal-title">🎉 You Found It! 🎉</h2>
                 <p id="modal-subtitle" style="color: #aaa; margin-bottom: 5px;">The mystery country was:</p>
                 <h1 id="winning-country"></h1>
-                <p id="modal-stats">It took you <strong id="final-guess-count" style="color: #fff;"></strong> guesses.</p>
+                <p id="modal-msg">It took you <strong id="final-guess-count" style="color: #fff;"></strong> guesses.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-box"><div class="stat-value" id="stat-played">0</div><div>Played</div></div>
+                    <div class="stat-box"><div class="stat-value" id="stat-win">0%</div><div>Win %</div></div>
+                    <div class="stat-box"><div class="stat-value" id="stat-streak">0</div><div>Streak</div></div>
+                    <div class="stat-box"><div class="stat-value" id="stat-max">0</div><div>Max</div></div>
+                </div>
+
                 <button class="modal-btn" onclick="location.reload()" aria-label="Play a new game">Play Again</button>
             </div>
         </dialog>
@@ -333,6 +481,100 @@
         let guesses = [];
         let sortMethod = 'order'; 
         let gameOver = false;
+
+        // --- Native Web Audio Synthesizer (No external sound files required) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playPop() {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator(); 
+                const gain = audioCtx.createGain();
+                osc.connect(gain); 
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine'; 
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); 
+                osc.stop(audioCtx.currentTime + 0.1);
+            } catch (e) { console.warn("Audio not supported"); }
+        }
+
+        function playBuzz() {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator(); 
+                const gain = audioCtx.createGain();
+                osc.connect(gain); 
+                gain.connect(audioCtx.destination);
+                osc.type = 'sawtooth'; 
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                osc.start(); 
+                osc.stop(audioCtx.currentTime + 0.25);
+            } catch (e) { console.warn("Audio not supported"); }
+        }
+
+        function playWinChime() {
+            try {
+                initAudio();
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator(); 
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain); 
+                    gain.connect(audioCtx.destination);
+                    osc.type = 'triangle'; 
+                    osc.frequency.value = freq;
+                    const startTime = audioCtx.currentTime + (i * 0.12);
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(0.3, startTime + 0.05);
+                    gain.gain.linearRampToValueAtTime(0, startTime + 0.4);
+                    osc.start(startTime); 
+                    osc.stop(startTime + 0.4);
+                });
+            } catch (e) { console.warn("Audio not supported"); }
+        }
+
+        // --- Player Stats Logic (localStorage) ---
+        let playerStats = JSON.parse(localStorage.getItem('geoSearchStats')) || {
+            played: 0, 
+            won: 0, 
+            currentStreak: 0, 
+            maxStreak: 0
+        };
+
+        function saveStats(isWin) {
+            playerStats.played++;
+            if (isWin) {
+                playerStats.won++;
+                playerStats.currentStreak++;
+                if (playerStats.currentStreak > playerStats.maxStreak) {
+                    playerStats.maxStreak = playerStats.currentStreak;
+                }
+            } else {
+                playerStats.currentStreak = 0;
+            }
+            localStorage.setItem('geoSearchStats', JSON.stringify(playerStats));
+            updateStatsUI();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('stat-played').innerText = playerStats.played;
+            const winPct = playerStats.played > 0 ? Math.round((playerStats.won / playerStats.played) * 100) : 0;
+            document.getElementById('stat-win').innerText = winPct + '%';
+            document.getElementById('stat-streak').innerText = playerStats.currentStreak;
+            document.getElementById('stat-max').innerText = playerStats.maxStreak;
+        }
 
         // --- Common Abbreviations & Aliases Map ---
         const aliases = {
@@ -358,48 +600,62 @@
             .polygonSideColor(() => 'rgba(0, 0, 0, 0.4)')
             .polygonStrokeColor(() => '#111');
 
+        // Add auto-rotation for a nice idle effect
         world.controls().autoRotate = true;
         world.controls().autoRotateSpeed = 0.5;
 
+        // Handle window resize
         window.addEventListener('resize', () => {
             world.width(window.innerWidth);
             world.height(window.innerHeight);
         });
 
+        // Stop auto-rotation when user interacts
         document.getElementById('globeViz').addEventListener('mousedown', () => {
             world.controls().autoRotate = false;
         });
 
-        // --- Fetch Data & Start Game ---
+        // --- Fetch Data safely with Error Handling ---
         Promise.all([
+            // FIXED URL: Restored the original, highly reliable raw github file for the mapping data
             fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson').then(r => r.json()),
-            fetch('https://restcountries.com/v3.1/all?fields=name,cca3,latlng,borders').then(r => r.json())
+            fetch('https://restcountries.com/v3.1/all?fields=name,cca3,latlng,borders,region,subregion,population').then(r => r.json())
         ]).then(([geoData, restData]) => {
             
+            // Map the REST countries data by code
             restData.forEach(c => { restCountriesData[c.cca3] = c; });
 
+            // CRITICAL FIX: Scrub the data. Only keep countries that have valid coordinates.
             geoData.features = geoData.features.filter(d => {
                 const code = d.properties.ISO_A3;
-                return code !== 'ATA' && code !== '-99' && restCountriesData[code];
+                const cData = restCountriesData[code];
+                // Must not be Antarctica (-99 or ATA), must exist in rest API, and must have lat/lng
+                return code !== 'ATA' && code !== '-99' && cData && cData.latlng && cData.latlng.length === 2;
             });
+            
             geoJsonData = geoData;
 
+            // Paint the initial transparent globe
             world.polygonsData(geoData.features)
-                 .polygonCapColor(() => 'rgba(255, 255, 255, 0.0)') 
+                 .polygonCapColor(() => 'rgba(255, 255, 255, 0.0)')
                  .polygonAltitude(0.01);
 
+            // Populate the dropdown list
             const dataList = document.getElementById('country-list');
             Object.values(restCountriesData)
-                .sort((a,b) => a.name.common.localeCompare(b.name.common))
-                .forEach(c => {
-                    const option = document.createElement('option');
-                    option.value = c.name.common;
-                    dataList.appendChild(option);
-                });
+                  .filter(c => c.latlng && c.latlng.length === 2) // only add playable countries
+                  .sort((a,b) => a.name.common.localeCompare(b.name.common))
+                  .forEach(c => {
+                      const option = document.createElement('option'); 
+                      option.value = c.name.common; 
+                      dataList.appendChild(option);
+                  });
 
+            // Pick a safe, verified random mystery country
             const randomFeat = geoData.features[Math.floor(Math.random() * geoData.features.length)];
             mysteryCountryCode = randomFeat.properties.ISO_A3;
 
+            // Fade out the loading screen
             document.getElementById('loading-overlay').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('loading-overlay').style.display = 'none';
@@ -407,11 +663,19 @@
                 document.getElementById('history-panel').style.display = 'flex';
                 document.getElementById('search-container').style.display = 'flex';
             }, 500);
+
+        }).catch(error => {
+            // If the APIs fail, tell the user instead of spinning forever
+            console.error("Game Initialization Error:", error);
+            document.querySelector('.spinner').innerText = "⚠️";
+            document.querySelector('.spinner').style.animation = "none";
+            document.querySelector('#loading-overlay h2').innerText = "Connection Error";
+            document.getElementById('loading-text').innerText = "Could not load world map data. Please check your internet connection and refresh the page.";
         });
 
-        // --- Distance Logic (Haversine) ---
+        // --- Distance Logic (Haversine formula) ---
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; 
+            const R = 6371; // Earth radius in km
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -422,17 +686,42 @@
         }
 
         function getDistanceColor(distance) {
-            if (distance === 0) return '#ff3333'; 
-            if (distance < 1500) return '#ff6b33'; 
-            if (distance < 3500) return '#ffa600'; 
-            if (distance < 6000) return '#ffd000'; 
-            if (distance < 9000) return '#a2ff00'; 
-            return '#00e676'; 
+            if (distance === 0) return '#ff3333'; // Target
+            if (distance < 1500) return '#ff6b33'; // Hot
+            if (distance < 3500) return '#ffa600'; // Warm
+            if (distance < 6000) return '#ffd000'; // Lukewarm
+            if (distance < 9000) return '#a2ff00'; // Cool
+            return '#00e676'; // Cold
+        }
+
+        // --- Clues Logic ---
+        function formatPopulation(pop) {
+            if (!pop) return "unknown";
+            if (pop < 1000000) return "under 1 million";
+            return (pop / 1000000).toFixed(1) + " million";
+        }
+
+        function revealClue(level) {
+            const container = document.getElementById('clues-container');
+            const list = document.getElementById('clues-list');
+            const target = restCountriesData[mysteryCountryCode];
+            
+            container.style.display = 'block';
+
+            const li = document.createElement('li');
+            if (level === 1) {
+                li.innerHTML = `Located in <strong>${target.subregion || target.region}</strong>.`;
+            } else if (level === 2) {
+                li.innerHTML = `Population is ~<strong>${formatPopulation(target.population)}</strong> and starts with '<strong>${target.name.common[0]}</strong>'.`;
+            }
+            list.appendChild(li);
         }
 
         // --- Main Guessing Function ---
         function makeGuess() {
+            initAudio(); // Initialize audio context on user interaction
             if (gameOver) return;
+            
             const inputField = document.getElementById('country-input');
             const rawInput = inputField.value;
             const cleanedInput = rawInput.toLowerCase().replace(/[.,\-']/g, "").trim();
@@ -455,15 +744,20 @@
                 }
             }
 
-            if (!guessedCode || !restCountriesData[guessedCode]) {
-                alert("Location not recognized. Please check spelling.");
+            // Validation checks
+            if (!guessedCode || !restCountriesData[guessedCode] || !restCountriesData[guessedCode].latlng) {
+                playBuzz();
+                alert("Location not recognized or missing map data. Please check spelling.");
                 return;
             }
 
             if (guesses.some(g => g.code === guessedCode)) {
+                playBuzz();
                 alert("Coordinates already scanned!");
                 return;
             }
+
+            playPop(); // Successful guess sound
 
             const guessedData = restCountriesData[guessedCode];
             const mysteryData = restCountriesData[mysteryCountryCode];
@@ -471,6 +765,7 @@
             let distance = 0;
             let isWin = false;
 
+            // Determine if win, border, or calculate distance
             if (guessedCode === mysteryCountryCode) {
                 distance = 0;
                 isWin = true;
@@ -480,6 +775,7 @@
                 distance = calculateDistance(guessedData.latlng[0], guessedData.latlng[1], mysteryData.latlng[0], mysteryData.latlng[1]);
             }
 
+            // Determine trend text
             let trendText = "";
             let trendColor = "#aaa";
             if (guesses.length > 0) {
@@ -493,6 +789,7 @@
                 else { trendText = "Initial Scan"; }
             }
 
+            // Save guess
             guesses.unshift({
                 order: guesses.length + 1,
                 code: guessedCode,
@@ -505,12 +802,18 @@
 
             inputField.value = '';
             
+            // Trigger clues based on guess count
+            if (!isWin && guesses.length === 5) revealClue(1);
+            if (!isWin && guesses.length === 10) revealClue(2);
+
             renderGuesses();
             updateGlobe();
             
+            // Stop auto-rotate and fly to country
             world.controls().autoRotate = false;
             world.pointOfView({ lat: guessedData.latlng[0], lng: guessedData.latlng[1], altitude: 1.5 }, 1200);
 
+            // Handle win condition
             if (isWin) {
                 gameOver = true;
                 setTimeout(() => showEndScreen(guessedData.name.common, true), 1500);
@@ -523,6 +826,7 @@
             gameOver = true;
             const mysteryData = restCountriesData[mysteryCountryCode];
             
+            // Highlight the mystery country
             world.polygonCapColor(feat => {
                 if(feat.properties.ISO_A3 === mysteryCountryCode) return 'rgba(255, 0, 0, 0.6)';
                 return 'rgba(255, 255, 255, 0.0)';
@@ -593,20 +897,34 @@
         function showEndScreen(countryName, isWin) {
             document.getElementById('winning-country').innerText = countryName;
             
+            // Save and render local stats
+            saveStats(isWin);
+            
             if (!isWin) {
                 document.getElementById('modal-title').innerText = "Game Over!";
                 document.getElementById('modal-title').style.color = "#ff6b6b";
                 document.getElementById('winning-country').style.background = "-webkit-linear-gradient(#ff6b6b, #ff0000)";
                 document.getElementById('winning-country').style.webkitBackgroundClip = "text";
                 document.getElementById('winning-country').style.webkitTextFillColor = "transparent";
-                document.getElementById('modal-stats').innerHTML = `You gave up after <strong style="color: #fff;">${guesses.length}</strong> guesses.`;
+                document.getElementById('modal-msg').innerHTML = `You gave up after <strong style="color: #fff;">${guesses.length}</strong> guesses.`;
             } else {
                 document.getElementById('final-guess-count').innerText = guesses.length;
+                playWinChime();
+                
+                // Fire Confetti Cannon
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#4facfe', '#00f2fe', '#ffd000', '#ffffff'],
+                    zIndex: 1000
+                });
             }
 
             document.getElementById('victory-modal').style.display = 'flex';
         }
 
+        // Allow pressing "Enter" to guess
         document.getElementById('country-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') makeGuess();
         });
